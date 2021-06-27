@@ -3,6 +3,9 @@
 
 #include <iostream>
 
+#include "Shader.h"
+
+
 static int WIDTH = 800;
 static int HEIGHT = 600;
 
@@ -22,13 +25,26 @@ void ProcessInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 	}
 }
+
+void LogGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_NOTIFICATION:
+		return;
+	case GL_DEBUG_SEVERITY_HIGH:
+		std::cout << "Error in Line" << (int)userParam << std::endl;
+		std::cout << message << std::endl;
+		__debugbreak();
+	}
+}
+
 int main()
 {
-
 	//Initializing GLFW and Setting OPENGL Versions to use
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
@@ -55,6 +71,12 @@ int main()
 	}
 
 
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	glDebugMessageCallback(LogGLDebugMessage, (void*)__LINE__);
+
 	//Creating viewport
 	glViewport(0, 0, WIDTH, HEIGHT);
 
@@ -62,113 +84,75 @@ int main()
 	glfwSetFramebufferSizeCallback(window, OnResize);
 
 
-	// Shader Creation
-	const char* vertexShaderSource = "#version 430 core\n"
-    "layout (location = 0) in vec2 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);\n"
-		"}\0";
-
-
-	const char* fragmentShaderSource = "#version 430 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"   FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);\n"
-		"}\0";
-
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	int success;
-	char info[1000];
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
 	{
-		glGetShaderInfoLog(vertexShader, 1000, NULL, info);
+		Shader shader("Basic.shader");
+		Shader redShader("Red.shader");
 
-		std::cout << "Error in VertexShader \n" << info;
-	}
+		// Render a Triangle
+		float vertices[8] = {
+								-0.25f, -0.25f,
+								0.25f, -0.25f,
+								0.25f, 0.25f,
+								-0.25f, 0.25f,
+		};
 
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
+		unsigned int indices[6] = { 0, 1, 3, 3, 1, 2 };
 
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 1000, NULL, info);
-		std::cout <<"Error in FragmentShader \n" <<  info;
-	}
+		// Vertex Buffer Object
+		unsigned int VBO;
+		glGenBuffers(1, &VBO);
 
-	unsigned int program = glCreateProgram();
+		unsigned int elementBuffer;
+		glGenBuffers(1, &elementBuffer);
 
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-
-	glLinkProgram(program);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	// Render a Triangle
-	float vertices[8] = {
-							-0.25f, -0.25f,
-							0.25f, -0.25f,
-							0.25f, 0.25f,
-							-0.25f, 0.25f,
-	};
-
-	unsigned int indices[6] = { 0, 1, 3, 3, 1, 2 };
-
-	// Vertex Buffer Object
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-
-	unsigned int elementBuffer;
-	glGenBuffers(1, &elementBuffer);
-
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
-
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glBindVertexArray(0);
-
-	//Main Rendering Loop
-	while (!glfwWindowShouldClose(window))
-	{
-		ProcessInput(window);
-
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		unsigned int VAO;
+		glGenVertexArrays(1, &VAO);
 
 		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-		glUseProgram(program);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
+
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glBindVertexArray(0);
+		shader.Bind();
+
+		//Main Rendering Loop
+		while (!glfwWindowShouldClose(window))
+		{
+			ProcessInput(window);
+
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			glBindVertexArray(VAO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+
+
+			shader.SetUniform4("color", 0.1f, 0.2f, 0.7f, 1.0f);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+		}
+
+		//Terminating and cleaning up
+
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &elementBuffer);
+		glDeleteVertexArrays(1, &VAO);
+
 	}
 
-	//Terminating and cleaning up
 	glfwTerminate();
 	return 0;
 }
