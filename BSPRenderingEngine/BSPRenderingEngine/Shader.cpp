@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
+#include "glm/gtc/type_ptr.hpp"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -163,6 +164,16 @@ void Shader::UnBind() const
 void Shader::SetUniform4(const std::string& name, float r, float g, float b, float a)
 {
 	glUniform4f(GetLocation(name), r, g, b, a);
+}
+
+void Shader::SetUniform1(const std::string& name, int value)
+{
+	glUniform1i(GetLocation(name), value);
+}
+
+void Shader::SetMatrix4(const std::string& name, glm::mat4& matrix)
+{
+	glUniformMatrix4fv(GetLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 unsigned int Shader::GetLocation(const std::string& name)
