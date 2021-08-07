@@ -3,10 +3,16 @@
 #version 430 core
 
 layout (location = 0) in vec4 aPos;
+layout(location = 1) in vec2 texC;
+
+out vec2 texCoord;
+
+uniform mat4 rot;
 
 void main()
 {
-	gl_Position = aPos;
+	gl_Position = rot * aPos;
+	texCoord = texC;
 };
 
 #shader fragment	// type = 1 // stream[1]
@@ -16,10 +22,14 @@ void main()
 uniform vec4 color;
 
 out vec4 FragColor;
+in vec2 texCoord;
+
+uniform sampler2D sampleTexture;
+uniform sampler2D faceTexture;
 
 void main()
 {
-	FragColor = color;
+	FragColor = mix(texture(sampleTexture, texCoord), texture(faceTexture, texCoord), 0.3f);
 };
 
 

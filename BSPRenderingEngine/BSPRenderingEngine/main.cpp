@@ -4,6 +4,16 @@
 #include <iostream>
 
 #include "Shader.h"
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "VertexLayout.h"
+#include "IndexBuffer.h"
+
+#include "Texture2D.h"
+
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 
 static int WIDTH = 800;
@@ -88,43 +98,47 @@ int main()
 		Shader shader("Basic.shader");
 		Shader redShader("Red.shader");
 
+		Texture2D texContainer("Textures/container.jpg", GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		Texture2D texFace("Textures/awesomeface.png", GL_RGB, GL_RGBA, GL_UNSIGNED_BYTE);
 		// Render a Triangle
-		float vertices[8] = {
-								-0.25f, -0.25f,
-								0.25f, -0.25f,
-								0.25f, 0.25f,
-								-0.25f, 0.25f,
+		float vertices[16] = {
+								-0.25f, -0.25f, 0.0f, 0.0f, //v0	0X00
+								0.25f, -0.25f, 1.0f, 0.0f,	//v1	16
+								0.25f, 0.25f, 1.0f, 1.0f,	//v2	32
+								-0.25f, 0.25f, 0.0f, 1.0f	//v3	48
 		};
 
 		unsigned int indices[6] = { 0, 1, 3, 3, 1, 2 };
 
 		// Vertex Buffer Object
-		unsigned int VBO;
-		glGenBuffers(1, &VBO);
 
-		unsigned int elementBuffer;
-		glGenBuffers(1, &elementBuffer);
+		VertexBuffer vb(sizeof(vertices), vertices);
+		IndexBuffer ib(sizeof(indices), indices);
 
-		unsigned int VAO;
-		glGenVertexArrays(1, &VAO);
+		VertexArray va;
+		VertexLayout vl;
 
-		glBindVertexArray(VAO);
+		vl.PushAttribute<float>(2);
+		vl.PushAttribute<float>(2);
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		va.AddLayout(vl, vb);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
-
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		glBindVertexArray(0);
+		va.Bind();
 		shader.Bind();
+
+		texContainer.Bind(0);
+		texFace.Bind(1);
+
+		shader.SetUniform1("sampleTexture", 0);
+		shader.SetUniform1("faceTexture", 1);
+
+		//glm::mat4 rot = glm::mat4(1.0f);
+
+		//rot = glm::rotate(rot, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		//rot = glm::scale(rot, glm::vec3(2.f, 2.f, 2.f));
+		////rot = glm::translate(rot, glm::vec3(0.2f, 0.0f, 0.f));
+
+		//shader.SetMatrix4("rot", rot);
 
 		//Main Rendering Loop
 		while (!glfwWindowShouldClose(window))
@@ -134,22 +148,23 @@ int main()
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			glBindVertexArray(VAO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+			ib.Bind();
 
 
 			shader.SetUniform4("color", 0.1f, 0.2f, 0.7f, 1.0f);
+
+			glm::mat4 rot = glm::mat4(1.0f);
+
+			rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+			rot = glm::scale(rot, glm::vec3(2.f, 2.f, 2.f));
+
+			shader.SetMatrix4("rot", rot);
+
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
-
-		//Terminating and cleaning up
-
-		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &elementBuffer);
-		glDeleteVertexArrays(1, &VAO);
 
 	}
 

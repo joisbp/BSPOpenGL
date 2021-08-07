@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iostream>
 
+#include "glm/gtc/type_ptr.hpp"
+
 Shader::Shader(const std::string& filePath)
 	:m_ShaderID(0)
 {
@@ -170,10 +172,10 @@ void Shader::SetUniform1(const std::string& name, int value)
 	glUniform1i(GetLocation(name), value);
 }
 
-//void Shader::SetMatrix4(const std::string& name, glm::mat4& matrix)
-//{
-//	glUniformMatrix4fv(GetLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
-//}
+void Shader::SetMatrix4(const std::string& name, glm::mat4& matrix)
+{
+	glUniformMatrix4fv(GetLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
 
 unsigned int Shader::GetLocation(const std::string& name)
 {
