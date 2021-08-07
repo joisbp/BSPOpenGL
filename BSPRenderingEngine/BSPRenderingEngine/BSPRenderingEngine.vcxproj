@@ -160,7 +160,6 @@
     <None Include="Red.shader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cube.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="Shader.h" />
