@@ -15,9 +15,11 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "Camera.h"
 
 static int WIDTH = 800;
 static int HEIGHT = 600;
+Camera cam(glm::vec3(0, 0, 10.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 void OnResize(GLFWwindow* window, int width, int height)
 {
@@ -27,13 +29,20 @@ void OnResize(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-void ProcessInput(GLFWwindow* window)
+void ProcessInput(GLFWwindow* window, Camera* cam, float deltaTime)
 {
 	// If escape key is pressed, send the signal to close the window and stop
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
+
+	cam->UpdateCamera(window, deltaTime);
+}
+
+void UpdateMousePosition(GLFWwindow* window, double xpos, double ypos)
+{
+	cam.UpdateCameraView(xpos, ypos);
 }
 
 void LogGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
@@ -57,7 +66,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
 	//Creating Window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "BSPRenderingEngine", NULL, NULL);
 
@@ -80,6 +88,8 @@ int main()
 		return -1;
 	}
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, UpdateMousePosition);
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -123,7 +133,19 @@ int main()
 
 		va.AddLayout(vl, vb);
 
-		va.Bind();
+#include "Cube.h"
+
+		VertexBuffer cubeVB(sizeof(cVertices), cVertices);
+		IndexBuffer cubeIB(sizeof(cIndices), cIndices);
+
+		VertexArray cVA;
+		VertexLayout cVL;
+
+		cVL.PushAttribute<float>(3);
+		cVL.PushAttribute<float>(2);
+
+		cVA.AddLayout(cVL, cubeVB);
+
 		shader.Bind();
 
 		texContainer.Bind(0);
@@ -140,28 +162,44 @@ int main()
 
 		//shader.SetMatrix4("rot", rot);
 
+
+		glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.01f, 1000.0f);
+
+		shader.SetMatrix4("proj", proj);
+
+		float deltaTime = 0.0f;
+		float lastTime = 0.0f;
+		
+
 		//Main Rendering Loop
 		while (!glfwWindowShouldClose(window))
 		{
-			ProcessInput(window);
+			float currTime = glfwGetTime();
+			deltaTime = currTime - lastTime;
+			lastTime = currTime;
+
+			ProcessInput(window, &cam, deltaTime);
 
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			glEnable(GL_DEPTH_TEST);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			ib.Bind();
+			cVA.Bind();
+			cubeIB.Bind();
 
 
 			shader.SetUniform4("color", 0.1f, 0.2f, 0.7f, 1.0f);
 
 			glm::mat4 rot = glm::mat4(1.0f);
 
-			rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+			rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 			rot = glm::scale(rot, glm::vec3(2.f, 2.f, 2.f));
 
-			shader.SetMatrix4("rot", rot);
+			shader.SetMatrix4("world", rot);
 
+			cam.UpdateShader(&shader);
 
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}

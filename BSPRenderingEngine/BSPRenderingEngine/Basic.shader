@@ -7,11 +7,13 @@ layout(location = 1) in vec2 texC;
 
 out vec2 texCoord;
 
-uniform mat4 rot;
+uniform mat4 world;
+uniform mat4 proj;
+uniform mat4 view;
 
 void main()
 {
-	gl_Position = rot * aPos;
+	gl_Position = proj * view * world * aPos;
 	texCoord = texC;
 };
 
