@@ -17,6 +17,9 @@
 
 #include "Camera.h"
 
+#include "Scene.h"
+
+
 static int WIDTH = 800;
 static int HEIGHT = 600;
 Camera cam(glm::vec3(0, 0, 10.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -133,6 +136,11 @@ int main()
 
 		va.AddLayout(vl, vb);
 
+
+		Scene scene;
+		scene.LoadSceneFromFile("Models/backpack/backpack.obj");
+
+
 #include "Cube.h"
 
 		VertexBuffer cubeVB(sizeof(cVertices), cVertices);
@@ -200,6 +208,8 @@ int main()
 			cam.UpdateShader(&shader);
 
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
+
+			scene.Draw();
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}

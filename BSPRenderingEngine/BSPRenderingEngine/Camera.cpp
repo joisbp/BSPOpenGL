@@ -1,7 +1,6 @@
 #include "Camera.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Shader.h"
-#include <iostream>
 
 Camera::Camera(glm::vec3 position, glm::vec3 target, glm::vec3 up)
 	: m_Position(position), m_LookAtTarget(target), m_UpVector(up), m_MoveSpeed(10), m_FrontVector(0,0,-1.0f), m_Yaw(-90.0f), m_Pitch(0.0f), m_FirstMouse(true),
@@ -65,9 +64,6 @@ void Camera::UpdateCameraView(float xPosition, float yPosition)
 		m_Pitch = 89.0f;
 	if (m_Pitch < -89.0f)
 		m_Pitch = -89.0f;
-
-
-	std::cout << m_Pitch << std::endl;
 
 	prevMouseXPosition = xPosition;
 	prevMouseYPosition = yPosition;
