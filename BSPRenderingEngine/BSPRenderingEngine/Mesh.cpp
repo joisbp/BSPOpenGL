@@ -1,13 +1,14 @@
 #include "Mesh.h"
 #include "Graphics.h"
 
-Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
-{
-	m_Vertices = vertices;
-	m_Indices = indices;
 
-	m_VB = new VertexBuffer(sizeof(m_Vertices), &m_Vertices);
-	m_IB = new IndexBuffer(sizeof(m_Indices), &m_Indices);
+Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Material* material)
+	: m_Material(material)
+{
+	m_IndicesCount = indices.size();
+
+	m_VB = new VertexBuffer(sizeof(Vertex) * vertices.size() , &vertices[0]);
+	m_IB = new IndexBuffer(sizeof(unsigned int) * indices.size() , &indices[0]);
 
 	m_VA = new VertexArray();
 
@@ -19,12 +20,13 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 	m_VA->AddLayout(*m_VL, *m_VB);
 }
 
-void Mesh::Draw()
+void Mesh::Draw(Shader& shader)
 {
+	m_Material->PreDraw(shader);
 	m_VA->Bind();
 	m_IB->Bind();
 
-	glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, m_IndicesCount, GL_UNSIGNED_INT, nullptr);
 
 	m_IB->UnBind();
 	m_VA->UnBind();

@@ -110,6 +110,7 @@ int main()
 	{
 		Shader shader("Basic.shader");
 		Shader redShader("Red.shader");
+		Shader modelShader("Model.shader");
 
 		Texture2D texContainer("Textures/container.jpg", GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 		Texture2D texFace("Textures/awesomeface.png", GL_RGB, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -182,6 +183,7 @@ int main()
 		//Main Rendering Loop
 		while (!glfwWindowShouldClose(window))
 		{
+			shader.Bind();
 			float currTime = glfwGetTime();
 			deltaTime = currTime - lastTime;
 			lastTime = currTime;
@@ -209,7 +211,18 @@ int main()
 
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 
-			scene.Draw();
+			shader.UnBind();
+
+			modelShader.Bind();
+
+			cam.UpdateShader(&modelShader);
+			modelShader.SetMatrix4("proj", proj);
+			modelShader.SetMatrix4("world", rot);
+
+			scene.Draw(modelShader);
+			modelShader.UnBind();
+
+
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}

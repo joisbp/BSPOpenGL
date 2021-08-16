@@ -149,6 +149,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -163,6 +164,7 @@
   <ItemGroup>
     <None Include="Basic.shader" />
     <None Include="Cube.shader" />
+    <None Include="Model.shader" />
     <None Include="Red.shader" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +172,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Scene.h" />

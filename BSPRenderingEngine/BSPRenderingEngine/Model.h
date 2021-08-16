@@ -2,8 +2,11 @@
 
 #include <assimp/scene.h>
 #include "Mesh.h"
-
+#include "Shader.h"
 #include <vector>
+
+class Material;
+class Scene;
 
 class Model
 {
@@ -13,9 +16,11 @@ private:
 public:
 	Model();
 
-	void LoadMesh(aiMesh* mesh);
+	void LoadMesh(const aiScene* aiscene, aiMesh* mesh, Scene* scene);
 
-	void Draw();
+	Material* CreateMaterial(const aiScene* aiscene, aiMesh* mesh, Scene* scene);
+
+	void Draw(Shader& shader);
 
 	inline int GetNumMeshes() { return m_Meshes.size(); }
 };

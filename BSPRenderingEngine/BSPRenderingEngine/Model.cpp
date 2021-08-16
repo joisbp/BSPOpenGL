@@ -4,13 +4,15 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Material.h"
+#include "Scene.h"
 #include <iostream>
 
 Model::Model()
 {
 }
 
-void Model::LoadMesh(aiMesh* mesh)
+void Model::LoadMesh(const aiScene* aiscene, aiMesh* mesh, Scene* scene)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -30,14 +32,45 @@ void Model::LoadMesh(aiMesh* mesh)
 			indices.push_back(mesh->mFaces[i].mIndices[j]);
 	}
 
-	Mesh* newMesh = new Mesh(vertices, indices);
+
+	Material* material = CreateMaterial(aiscene, mesh, scene);
+
+	Mesh* newMesh = new Mesh(vertices, indices, material);
 	m_Meshes.push_back(newMesh);
+
+
 }
 
-void Model::Draw()
+Material* Model::CreateMaterial(const aiScene* aiscene, aiMesh* mesh, Scene* scene)
+{
+	auto aimaterial = aiscene->mMaterials[mesh->mMaterialIndex];
+
+	Material* mat = new Material();
+
+	for (int i = 0; i < aimaterial->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE); ++i)
+	{
+		aiString path;
+		aimaterial->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &path);
+
+		std::string texturePath = scene->GetSceneDirectory() + std::string(path.C_Str());
+
+		auto loadedTex = scene->IsTextureLoaded(texturePath);
+		if (loadedTex == nullptr)
+		{
+			loadedTex = new Texture2D(texturePath, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+			scene->PushLoadedTexture(texturePath, loadedTex);
+		}
+
+		mat->PushTexture({ TextureType::Diffuse, loadedTex });
+	}
+
+	return mat;
+}
+
+void Model::Draw(Shader& shader)
 {
 	for (auto itr : m_Meshes)
 	{
-		itr->Draw();
+		itr->Draw(shader);
 	}
 }
