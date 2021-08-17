@@ -28,10 +28,11 @@ out vec4 FragColor;
 in vec2 texCoord;
 
 uniform sampler2D diffuse0;
+uniform sampler2D specular0;
 
 void main()
 {
-	FragColor = texture(diffuse0, texCoord);
+	FragColor = mix(texture(diffuse0, texCoord), texture(specular0, texCoord), 1.0f);
 };
 
 

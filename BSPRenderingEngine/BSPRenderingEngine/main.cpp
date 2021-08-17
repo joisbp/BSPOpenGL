@@ -112,7 +112,7 @@ int main()
 		Shader redShader("Red.shader");
 		Shader modelShader("Model.shader");
 
-		Texture2D texContainer("Textures/container.jpg", GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		Texture2D texContainer("Models/backpack/specular.jpg", GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 		Texture2D texFace("Textures/awesomeface.png", GL_RGB, GL_RGBA, GL_UNSIGNED_BYTE);
 		// Render a Triangle
 		float vertices[16] = {
@@ -184,6 +184,8 @@ int main()
 		while (!glfwWindowShouldClose(window))
 		{
 			shader.Bind();
+			texContainer.Bind(0);
+
 			float currTime = glfwGetTime();
 			deltaTime = currTime - lastTime;
 			lastTime = currTime;

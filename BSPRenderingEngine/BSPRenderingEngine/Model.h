@@ -20,6 +20,9 @@ public:
 
 	Material* CreateMaterial(const aiScene* aiscene, aiMesh* mesh, Scene* scene);
 
+	void LoadTextures(aiTextureType aiTexType, TextureType texType, Scene* scene, Material* mat,
+		aiMaterial* aimaterial, const std::string& texturePath);
+
 	void Draw(Shader& shader);
 
 	inline int GetNumMeshes() { return m_Meshes.size(); }

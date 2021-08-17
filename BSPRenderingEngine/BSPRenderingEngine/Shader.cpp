@@ -185,6 +185,11 @@ unsigned int Shader::GetLocation(const std::string& name)
 	}
 
 	unsigned int location = glGetUniformLocation(m_ShaderID, name.c_str());
-	m_UniformMap.insert({ name, location });
+
+	if (location != unsigned int(-1))
+	{
+		m_UniformMap.insert({ name, location });
+	}
+
 	return location;
 }

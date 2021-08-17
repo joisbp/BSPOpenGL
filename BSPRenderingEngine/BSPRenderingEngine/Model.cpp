@@ -46,13 +46,22 @@ Material* Model::CreateMaterial(const aiScene* aiscene, aiMesh* mesh, Scene* sce
 	auto aimaterial = aiscene->mMaterials[mesh->mMaterialIndex];
 
 	Material* mat = new Material();
+	
+	LoadTextures(aiTextureType::aiTextureType_DIFFUSE, TextureType::Diffuse, scene, mat, aimaterial, scene->GetSceneDirectory());
+	LoadTextures(aiTextureType::aiTextureType_SPECULAR, TextureType::Specular, scene, mat, aimaterial, scene->GetSceneDirectory());
 
-	for (int i = 0; i < aimaterial->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE); ++i)
+	return mat;
+}
+
+void Model::LoadTextures(aiTextureType aiTexType, TextureType textureType, Scene* scene, Material* mat,
+	aiMaterial* aimaterial, const std::string& directoryPath)
+{
+	for (int i = 0; i < aimaterial->GetTextureCount(aiTexType); ++i)
 	{
 		aiString path;
-		aimaterial->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &path);
+		aimaterial->GetTexture(aiTexType, i, &path);
 
-		std::string texturePath = scene->GetSceneDirectory() + std::string(path.C_Str());
+		std::string texturePath = directoryPath + std::string(path.C_Str());
 
 		auto loadedTex = scene->IsTextureLoaded(texturePath);
 		if (loadedTex == nullptr)
@@ -61,10 +70,8 @@ Material* Model::CreateMaterial(const aiScene* aiscene, aiMesh* mesh, Scene* sce
 			scene->PushLoadedTexture(texturePath, loadedTex);
 		}
 
-		mat->PushTexture({ TextureType::Diffuse, loadedTex });
+		mat->PushTexture({ textureType, loadedTex });
 	}
-
-	return mat;
 }
 
 void Model::Draw(Shader& shader)

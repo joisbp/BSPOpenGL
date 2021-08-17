@@ -31,8 +31,11 @@ void Texture2D::Bind()
 
 void Texture2D::Bind(unsigned int location)
 {
-	glActiveTexture(GL_TEXTURE0 + location);
-	Bind();
+	if (location != unsigned int(-1))
+	{
+		glActiveTexture(GL_TEXTURE0 + location);
+		Bind();
+	}
 }
 
 void Texture2D::UnBind()
