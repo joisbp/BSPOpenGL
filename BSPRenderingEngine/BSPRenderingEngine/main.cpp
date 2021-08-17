@@ -202,14 +202,14 @@ int main()
 
 			glm::mat4 rot = glm::mat4(1.0f);
 
-			rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
-			rot = glm::scale(rot, glm::vec3(2.f, 2.f, 2.f));
+			//rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+			//rot = glm::scale(rot, glm::vec3(2.f, 2.f, 2.f));
 
 			shader.SetMatrix4("world", rot);
 
 			cam.UpdateShader(&shader);
 
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
+			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 
 			shader.UnBind();
 
