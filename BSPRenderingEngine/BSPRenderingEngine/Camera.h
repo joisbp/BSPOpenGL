@@ -33,7 +33,7 @@ public:
 	inline glm::vec3 GetPosition() const { return m_Position; }
 	inline glm::vec3 GetLookAt() const { return m_LookAtTarget; }
 	inline glm::vec3 GetUp() const { return m_UpVector; }
-
+	inline glm::vec3 GetForward() const { return m_FrontVector; }
 
 	void UpdateShader(Shader* shader);
 };

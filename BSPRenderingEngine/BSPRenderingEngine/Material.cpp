@@ -14,6 +14,8 @@ void Material::PreDraw(Shader& shader)
 	m_DiffuseCount = 0;
 	m_SpecularCount = 0;
 
+
+
 	for (auto itr : m_Textures)
 	{
 		switch (itr.type)

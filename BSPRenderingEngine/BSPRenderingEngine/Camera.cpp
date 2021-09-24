@@ -36,12 +36,12 @@ void Camera::UpdateCamera(GLFWwindow* window, float deltaTime)
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		m_Position += m_MoveSpeed * deltaTime * glm::cross(m_FrontVector, m_UpVector);
+		m_Position -= m_MoveSpeed * deltaTime * glm::cross(m_FrontVector, m_UpVector);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		m_Position -= m_MoveSpeed * deltaTime * glm::cross(m_FrontVector, m_UpVector);
+		m_Position += m_MoveSpeed * deltaTime * glm::cross(m_FrontVector, m_UpVector);
 	}
 }
 

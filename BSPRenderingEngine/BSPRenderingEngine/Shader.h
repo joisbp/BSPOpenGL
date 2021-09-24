@@ -31,7 +31,9 @@ public:
 
 	void UnBind() const;
 	
-	void SetUniform4(const std::string& name, float r, float g, float b, float a);
+	void SetUniform4f(const std::string& name, float r, float g, float b, float a);
+	void SetUniform3f(const std::string& name, float r, float g, float b);
+	void SetUniform1f(const std::string& name, float r);
 
 	void SetUniform1(const std::string& name, int value);
 

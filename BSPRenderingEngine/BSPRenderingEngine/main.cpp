@@ -178,7 +178,7 @@ int main()
 
 		float deltaTime = 0.0f;
 		float lastTime = 0.0f;
-		
+
 
 		//Main Rendering Loop
 		while (!glfwWindowShouldClose(window))
@@ -200,11 +200,11 @@ int main()
 			cubeIB.Bind();
 
 
-			shader.SetUniform4("color", 0.1f, 0.2f, 0.7f, 1.0f);
+			shader.SetUniform4f("color", 0.1f, 0.2f, 0.7f, 1.0f);
 
 			glm::mat4 rot = glm::mat4(1.0f);
 
-			//rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+			rot = glm::rotate(rot, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
 			//rot = glm::scale(rot, glm::vec3(2.f, 2.f, 2.f));
 
 			shader.SetMatrix4("world", rot);
@@ -221,6 +221,45 @@ int main()
 			modelShader.SetMatrix4("proj", proj);
 			modelShader.SetMatrix4("world", rot);
 
+			modelShader.SetUniform3f("ambientColor", 1.0f, 1.0f, 1.0f);
+			modelShader.SetUniform1f("ambientCoeff", 0.1f);
+
+			// Direction Light
+			modelShader.SetUniform3f("dLight.Direction", -0.2f, -1.0f, -0.3f);
+			modelShader.SetUniform3f("dLight.ambient", 0.02f, 0.03f, 0.2f);
+			modelShader.SetUniform3f("dLight.diffuse", 0.7f, 0.7f, 0.8f);
+			modelShader.SetUniform3f("dLight.specular", 1.0f, 1.0f, 1.0f);
+
+			// Point Light
+			modelShader.SetUniform3f("pLight[0].Position", 2.3f, -0.3f, -1.0f);
+			modelShader.SetUniform3f("pLight[0].ambient", 0.05f, 0.05f, 0.05f);
+			modelShader.SetUniform3f("pLight[0].diffuse", 1.0f, 0.02f, 0.2f);
+			modelShader.SetUniform3f("pLight[0].specular", 1.0f, 1.0f, 1.0f);
+			modelShader.SetUniform1f("pLight[0].constant", 1.0f);
+			modelShader.SetUniform1f("pLight[0].linear", 0.09);
+			modelShader.SetUniform1f("pLight[0].quadratic", 0.032);
+
+			modelShader.SetUniform3f("pLight[1].Position", -2.3f, -0.3f, -1.0f);
+			modelShader.SetUniform3f("pLight[1].ambient", 0.08f, 0.08f, 0.08f);
+			modelShader.SetUniform3f("pLight[1].diffuse", 0.02f, 1.0f, 0.2f);
+			modelShader.SetUniform3f("pLight[1].specular", 1.0f, 1.0f, 1.0f);
+			modelShader.SetUniform1f("pLight[1].constant", 1.0f);
+			modelShader.SetUniform1f("pLight[1].linear", 0.09);
+			modelShader.SetUniform1f("pLight[1].quadratic", 0.032);
+
+			//SpotLight
+			modelShader.SetUniform3f("sLight.Position", cam.GetPosition().x, cam.GetPosition().y, cam.GetPosition().z);
+			modelShader.SetUniform3f("sLight.Direction", cam.GetForward().x, cam.GetForward().y, cam.GetForward().z);
+			modelShader.SetUniform3f("sLight.ambient", 0.0f, 0.0f, 0.0f);
+			modelShader.SetUniform3f("sLight.diffuse", 1.0f, 1.0f, 1.0f);
+			modelShader.SetUniform3f("sLight.specular", 1.0f, 1.0f, 1.0f);
+			modelShader.SetUniform1f("sLight.constant", 1.0f);
+			modelShader.SetUniform1f("sLight.linear", 0.09);
+			modelShader.SetUniform1f("sLight.quadratic", 0.032);
+			modelShader.SetUniform1f("sLight.cutOff", glm::cos(glm::radians(12.5f)));
+			modelShader.SetUniform1f("sLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+			//
+			modelShader.SetUniform3f("viewPos", cam.GetPosition().x, cam.GetPosition().y, cam.GetPosition().z);
 			scene.Draw(modelShader);
 			modelShader.UnBind();
 
